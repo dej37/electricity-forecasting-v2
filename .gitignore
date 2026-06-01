@@ -1,0 +1,8 @@
+ 
+# Ignore large files and folders
+notebooks/models/sarima_final.pkl
+mlruns/
+mlartifacts/
+outputs/
+src/__pycache__/
+*.pyc
