@@ -683,11 +683,10 @@ elif page == "Future Forecasting":
         scaler_y      = joblib.load(rf"{BASE}/notebooks/models/lstm_scaler_y.pkl")
         lstm_features = checkpoint["feature_cols"]
 
-        sarima_model  = SARIMAXResults.load(rf"{BASE}/notebooks/models/sarima_final.pkl")
 
-        return rf_model, rf_features, lstm_model, scaler_x, scaler_y, lstm_features, sarima_model
+        return rf_model, rf_features, lstm_model, scaler_x, scaler_y, lstm_features
 
-    rf_model, rf_features, lstm_model, scaler_x, scaler_y, lstm_features, sarima_model = load_models()
+    rf_model, rf_features, lstm_model, scaler_x, scaler_y, lstm_features = load_models()
 
     # Controls
     col1, col2 = st.columns(2)
@@ -757,9 +756,6 @@ elif page == "Future Forecasting":
                     y_scaled = lstm_model(X_tensor).squeeze().numpy()
                 y_pred = scaler_y.inverse_transform(y_scaled.reshape(-1, 1)).ravel()
                 forecasts["LSTM"] = y_pred[:H]
-
-            if "SARIMA" in selected_models:
-                forecasts["SARIMA"] = sarima_model.get_forecast(steps=H).predicted_mean.values
 
         forecast_df = pd.DataFrame(forecasts, index=future_index)
 
