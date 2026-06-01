@@ -641,7 +641,6 @@ elif page == "Model Results":
 elif page == "Future Forecasting":
     import torch
     import torch.nn as nn
-    from statsmodels.tsa.statespace.sarimax import SARIMAXResults
 
     st.title("Future Forecasting")
     st.write(
@@ -693,7 +692,7 @@ elif page == "Future Forecasting":
     with col1:
         selected_models = st.multiselect(
             "Select models",
-            ["Random Forest", "LSTM", "SARIMA"],
+            ["Random Forest", "LSTM"],
             default=["Random Forest"]
         )
     with col2:
