@@ -100,19 +100,26 @@ st.markdown(f"""
 def spe_layout(fig, title=None):
     fig.update_layout(
         template="plotly_white",
-        title=dict(text=title, font=dict(color=SPE_BLUE, size=16, family="Arial"), x=0),
-        font=dict(color=SPE_BLUE, family="Arial", size=13),
+        title=dict(text=title, font=dict(color=SPE_BLUE, size=18, family="Arial Black"), x=0.5, xanchor="center"),
+        font=dict(color=SPE_BLUE, family="Arial", size=14),
         paper_bgcolor=SPE_WHITE,
         plot_bgcolor="#FAFBFD",
         xaxis=dict(
             gridcolor="#E8EEF7", linecolor="#D1D9E6",
             tickfont=dict(color=SPE_BLUE, size=13, family="Arial"),
-            title_font=dict(color=SPE_BLUE, size=14, family="Arial", weight="bold")
+            title_font=dict(color=SPE_BLUE, size=15, family="Arial Black"),
+            tickangle=0,
+            showgrid=True,
+            zeroline=False,
+            automargin=True
         ),
         yaxis=dict(
             gridcolor="#E8EEF7", linecolor="#D1D9E6",
             tickfont=dict(color=SPE_BLUE, size=13, family="Arial"),
-            title_font=dict(color=SPE_BLUE, size=14, family="Arial", weight="bold")
+            title_font=dict(color=SPE_BLUE, size=15, family="Arial Black"),
+            showgrid=True,
+            zeroline=False,
+            automargin=True
         ),
         legend=dict(
             bgcolor=SPE_WHITE,
@@ -120,14 +127,14 @@ def spe_layout(fig, title=None):
             borderwidth=1,
             font=dict(color=SPE_BLUE, size=13, family="Arial")
         ),
-        margin=dict(t=50, b=40, l=60, r=20),
-        height=500
+        margin=dict(t=70, b=100, l=90, r=50),
+        height=550
     )
     return fig
 
 
 # ============================================================
-# BASE PATH — FIXED FOR DEPLOYMENT
+# BASE PATH
 # ============================================================
 BASE = "."
 
@@ -145,7 +152,7 @@ df = load_data()
 target_col = "load"
 
 # ============================================================
-# MODEL FILES — FIXED FOR DEPLOYMENT
+# MODEL FILES
 # ============================================================
 model_files = {
     "Holt-Winters":  rf"{BASE}/notebooks/hw_predictions.csv",
@@ -234,7 +241,7 @@ if page == "Home":
         (col1, "🗂", "Data Management",    "Filter, inspect, and download the dataset"),
         (col2, "📊", "Data Visualization", "Explore demand patterns and seasonality"),
         (col3, "🤖", "Model Results",      "Compare model metrics and forecast quality"),
-        (col4, "🔮", "Future Forecasting", "Generate forecasts with RF, LSTM and SARIMA"),
+        (col4, "🔮", "Future Forecasting", "Generate forecasts with RF and LSTM"),
     ]:
         col.markdown(f"""
         <div style='background:{SPE_WHITE}; border-radius:10px; padding:16px;
@@ -300,7 +307,10 @@ elif page == "Data Visualization":
     fig.add_scatter(x=filtered_df.index, y=filtered_df[target_col],
                     mode="lines", line=dict(color=SPE_BLUE, width=1), name="Demand")
     spe_layout(fig, "Hourly Electricity Demand")
-    fig.update_layout(xaxis_title="Date", yaxis_title="Demand (MW)")
+    fig.update_layout(
+        xaxis=dict(title=dict(text="Date", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text="Demand (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True)
+    )
     st.plotly_chart(fig, use_container_width=True)
 
     # Aggregated demand
@@ -312,7 +322,10 @@ elif page == "Data Visualization":
     fig_agg.add_scatter(x=agg_series.index, y=agg_series.values,
                         mode="lines", line=dict(color=SPE_ORANGE, width=2), name=agg_choice)
     spe_layout(fig_agg, f"{agg_choice} Average Electricity Demand")
-    fig_agg.update_layout(xaxis_title="Date", yaxis_title="Demand (MW)")
+    fig_agg.update_layout(
+        xaxis=dict(title=dict(text="Date", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text="Demand (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True)
+    )
     st.plotly_chart(fig_agg, use_container_width=True)
 
     # Box by day of week
@@ -323,31 +336,44 @@ elif page == "Data Visualization":
                      category_orders={"day_name": day_order},
                      color_discrete_sequence=[SPE_BLUE])
     spe_layout(fig_box, "Electricity Demand Distribution by Day of Week")
-    fig_box.update_layout(xaxis_title="Day of Week", yaxis_title="Demand (MW)")
+    fig_box.update_layout(
+        xaxis=dict(title=dict(text="Day of Week", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text="Demand (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True)
+    )
     st.plotly_chart(fig_box, use_container_width=True)
 
     # Hourly profile
     st.subheader("Average demand by hour of day")
     hourly_profile = filtered_df.groupby(filtered_df.index.hour)[target_col].mean().reset_index()
     hourly_profile.columns = ["Hour", "Average Demand"]
+    hourly_profile["Hour"] = hourly_profile["Hour"].astype(str) + ":00"
     fig_hour = go.Figure()
     fig_hour.add_scatter(x=hourly_profile["Hour"], y=hourly_profile["Average Demand"],
                          mode="lines+markers",
                          line=dict(color=SPE_BLUE, width=2),
                          marker=dict(color=SPE_ORANGE, size=7))
     spe_layout(fig_hour, "Average Electricity Demand by Hour of Day")
-    fig_hour.update_layout(xaxis_title="Hour of Day", yaxis_title="Demand (MW)")
+    fig_hour.update_layout(
+        xaxis=dict(title=dict(text="Hour of Day", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text="Demand (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True)
+    )
     st.plotly_chart(fig_hour, use_container_width=True)
 
     # Monthly profile
     st.subheader("Average demand by month")
     monthly_profile = filtered_df.groupby(filtered_df.index.month)[target_col].mean().reset_index()
     monthly_profile.columns = ["Month", "Average Demand"]
+    month_names = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+                   7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
+    monthly_profile["Month_Name"] = monthly_profile["Month"].map(month_names)
     fig_month = go.Figure()
-    fig_month.add_bar(x=monthly_profile["Month"], y=monthly_profile["Average Demand"],
+    fig_month.add_bar(x=monthly_profile["Month_Name"], y=monthly_profile["Average Demand"],
                       marker_color=SPE_BLUE)
     spe_layout(fig_month, "Average Electricity Demand by Month")
-    fig_month.update_layout(xaxis_title="Month", yaxis_title="Demand (MW)")
+    fig_month.update_layout(
+        xaxis=dict(title=dict(text="Month", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text="Demand (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True)
+    )
     st.plotly_chart(fig_month, use_container_width=True)
 
     # STL decomposition
@@ -367,7 +393,10 @@ elif page == "Data Visualization":
             fig_stl.add_scatter(x=stl_df.index, y=stl_df[col],
                                 mode="lines", name=col, line=dict(color=color, width=1))
         spe_layout(fig_stl, "STL Decomposition of Electricity Demand")
-        fig_stl.update_layout(xaxis_title="Date", yaxis_title="MW")
+        fig_stl.update_layout(
+            xaxis_title=dict(text="Date", font=dict(color=SPE_BLUE, size=15, family="Arial Black")),
+            yaxis_title=dict(text="MW", font=dict(color=SPE_BLUE, size=15, family="Arial Black"))
+        )
         st.plotly_chart(fig_stl, use_container_width=True)
     else:
         st.warning("Selected period is too short for STL decomposition.")
@@ -382,7 +411,10 @@ elif page == "Data Visualization":
         ax.set_facecolor("#FAFBFD")
         fig_acf.patch.set_facecolor(SPE_WHITE)
         plot_acf(acf_series, lags=lags, ax=ax, color=SPE_BLUE)
-        ax.set_title("ACF after seasonal differencing at lag 24", color=SPE_BLUE)
+        ax.set_title("ACF after seasonal differencing at lag 24", color=SPE_BLUE, fontsize=14, fontweight='bold')
+        ax.set_xlabel("Lag", color=SPE_BLUE, fontsize=12, fontweight='bold')
+        ax.set_ylabel("Autocorrelation", color=SPE_BLUE, fontsize=12, fontweight='bold')
+        ax.tick_params(colors=SPE_BLUE, labelsize=11)
         st.pyplot(fig_acf)
         plt.close()
 
@@ -390,7 +422,10 @@ elif page == "Data Visualization":
         ax.set_facecolor("#FAFBFD")
         fig_pacf.patch.set_facecolor(SPE_WHITE)
         plot_pacf(acf_series, lags=lags, ax=ax, method="ywm", color=SPE_BLUE)
-        ax.set_title("PACF after seasonal differencing at lag 24", color=SPE_BLUE)
+        ax.set_title("PACF after seasonal differencing at lag 24", color=SPE_BLUE, fontsize=14, fontweight='bold')
+        ax.set_xlabel("Lag", color=SPE_BLUE, fontsize=12, fontweight='bold')
+        ax.set_ylabel("Partial Autocorrelation", color=SPE_BLUE, fontsize=12, fontweight='bold')
+        ax.tick_params(colors=SPE_BLUE, labelsize=11)
         st.pyplot(fig_pacf)
         plt.close()
     else:
@@ -410,6 +445,11 @@ elif page == "Data Visualization":
         aspect="auto"
     )
     spe_layout(fig_heatmap, "Average Electricity Demand Heatmap")
+    fig_heatmap.update_layout(
+        xaxis=dict(title=dict(text="Hour of Day", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text="Day of Week", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        coloraxis_colorbar=dict(title=dict(text="Avg Demand (MW)", font=dict(color="#000000", size=14, family="Arial Black")))
+    )
     st.plotly_chart(fig_heatmap, use_container_width=True)
 
     # Correlation heatmap
@@ -428,6 +468,11 @@ elif page == "Data Visualization":
             color_continuous_scale=[[0, SPE_ORANGE],[0.5, SPE_WHITE],[1, SPE_BLUE]]
         )
         spe_layout(fig_corr, "Correlation Heatmap of Demand and Engineered Features")
+        fig_corr.update_layout(
+            xaxis_title=dict(text="Features", font=dict(color=SPE_BLUE, size=15, family="Arial Black")),
+            yaxis_title=dict(text="Features", font=dict(color=SPE_BLUE, size=15, family="Arial Black")),
+            coloraxis_colorbar=dict(title=dict(text="Correlation", font=dict(color="#000000", size=14, family="Arial Black")))
+        )
         st.plotly_chart(fig_corr, use_container_width=True)
     else:
         st.warning("Not enough numeric feature columns available.")
@@ -487,7 +532,11 @@ elif page == "Model Results":
             textposition="outside"
         )
     spe_layout(fig_metric, f"Overall {metric_choice} by Model")
-    fig_metric.update_layout(xaxis_title="Model", yaxis_title=metric_choice, showlegend=False)
+    fig_metric.update_layout(
+        xaxis=dict(title=dict(text="Model", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text=metric_choice, font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        showlegend=False
+    )
     st.plotly_chart(fig_metric, use_container_width=True)
 
     # --------------------------------------------------------
@@ -516,7 +565,10 @@ elif page == "Model Results":
             marker=dict(size=7)
         )
     spe_layout(fig_monthly, f"Monthly {monthly_metric_choice} Comparison by Model")
-    fig_monthly.update_layout(xaxis_title="Origin Month", yaxis_title=monthly_metric_choice)
+    fig_monthly.update_layout(
+        xaxis=dict(title=dict(text="Origin Month", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text=monthly_metric_choice, font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True)
+    )
     st.plotly_chart(fig_monthly, use_container_width=True)
 
     # --------------------------------------------------------
@@ -546,7 +598,10 @@ elif page == "Model Results":
                             mode="lines", name="Predicted",
                             line=dict(color=SPE_ORANGE, width=1.5, dash="dot"))
         spe_layout(fig_avp, f"Actual vs Predicted — {avp_model}")
-        fig_avp.update_layout(xaxis_title="Date", yaxis_title="Demand (MW)")
+        fig_avp.update_layout(
+            xaxis_title=dict(text="Date", font=dict(color=SPE_BLUE, size=15, family="Arial Black")),
+            yaxis_title=dict(text="Demand (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black"))
+        )
         st.plotly_chart(fig_avp, use_container_width=True)
 
         mae_f  = np.mean(np.abs(avp_filtered["actual"] - avp_filtered["predicted"]))
@@ -617,7 +672,10 @@ elif page == "Model Results":
                         mode="lines", line=dict(color=SPE_BLUE, width=1), name="Residual")
     fig_res.add_hline(y=0, line_dash="dash", line_color=SPE_ORANGE)
     spe_layout(fig_res, f"Residuals over Time — {res_model}")
-    fig_res.update_layout(xaxis_title="Date", yaxis_title="Residual (MW)")
+    fig_res.update_layout(
+        xaxis=dict(title=dict(text="Date", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text="Residuals (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True)
+    )
     st.plotly_chart(fig_res, use_container_width=True)
 
     fig_hist = go.Figure()
@@ -625,7 +683,10 @@ elif page == "Model Results":
                            marker_color=SPE_BLUE, opacity=0.8)
     fig_hist.add_vline(x=0, line_dash="dash", line_color=SPE_ORANGE)
     spe_layout(fig_hist, f"Residuals Distribution — {res_model}")
-    fig_hist.update_layout(xaxis_title="Residual (MW)", yaxis_title="Count")
+    fig_hist.update_layout(
+        xaxis=dict(title=dict(text="Residuals (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True),
+        yaxis=dict(title=dict(text="Count", font=dict(color=SPE_BLUE, size=15, family="Arial Black")), automargin=True)
+    )
     st.plotly_chart(fig_hist, use_container_width=True)
 
     c1, c2, c3, c4 = st.columns(4)
@@ -644,7 +705,7 @@ elif page == "Future Forecasting":
 
     st.title("Future Forecasting")
     st.write(
-        "Generate future electricity demand forecasts using the three best models "
+        "Generate future electricity demand forecasts using the two best models "
         "trained on the full dataset (January 2023 – December 2025)."
     )
 
@@ -681,7 +742,6 @@ elif page == "Future Forecasting":
         scaler_x      = joblib.load(rf"{BASE}/notebooks/models/lstm_scaler_x.pkl")
         scaler_y      = joblib.load(rf"{BASE}/notebooks/models/lstm_scaler_y.pkl")
         lstm_features = checkpoint["feature_cols"]
-
 
         return rf_model, rf_features, lstm_model, scaler_x, scaler_y, lstm_features
 
@@ -781,7 +841,10 @@ elif page == "Future Forecasting":
             line=dict(color=SPE_GRAY, dash="dash", width=1)
         )
         spe_layout(fig_fc, f"Electricity Demand Forecast — {horizon_label}")
-        fig_fc.update_layout(xaxis_title="Date", yaxis_title="Demand (MW)")
+        fig_fc.update_layout(
+            xaxis_title=dict(text="Date", font=dict(color=SPE_BLUE, size=15, family="Arial Black")),
+            yaxis_title=dict(text="Demand (MW)", font=dict(color=SPE_BLUE, size=15, family="Arial Black"))
+        )
         st.plotly_chart(fig_fc, use_container_width=True)
 
         st.download_button(
