@@ -390,7 +390,7 @@ elif page == "Data Visualization":
         spe_layout(fig_stl, "STL Decomposition of Electricity Demand")
         fig_stl.update_layout(
             xaxis_title=dict(text="Date", font=dict(color=SPE_BLUE, size=15, family="Arial Black")),
-            yaxis_title=dict(text="MW", font=dict(color=SPE_BLUE, size=15, family="Arial Black"))
+            yaxis_title=dict(text="Demand MW", font=dict(color=SPE_BLUE, size=15, family="Arial Black"))
         )
         st.plotly_chart(fig_stl, use_container_width=True)
     else:
