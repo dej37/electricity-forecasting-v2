@@ -221,7 +221,7 @@ if page == "Home":
         <p style='color:{SPE_GRAY}; margin:0; line-height:1.8;'>
         This dashboard supports the analysis and short-term forecasting of hourly electricity
         demand on Algeria's national interconnected grid. It covers
-        <b>January 2023 – December 2025</b> (~26,300 hourly observations) and compares
+        <b>January 2023 – December 2025</b> (~26,136 hourly observations) and compares
         six forecasting models evaluated via walk-forward validation.
         </p>
     </div>
